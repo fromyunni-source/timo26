@@ -51,6 +51,7 @@ window.GA_MEASUREMENT_ID = 'G-CQHZP66KS7'; /* 측정 ID: 여기 한 곳만 교�
 /* Peach — blush pink to warm cream */
 .tt[data-theme="peach"],[data-theme="peach"]{
   --g-bg:#FFFCF9; --g-line:rgba(150,100,110,.14); --g-ink:#4A2B36; --g-mut:rgba(74,43,54,.45);
+  --g-canvas:#FCF8EC;
   --c1:#FCD2DF;--c2:#FDDBE0;--c3:#FEE4E2;--c4:#FEEDE3;--c5:#FFF6E4;--c6:#F8BCCF;--c7:#FBDCC4;--c8:#F7C9C2;
   --i1:#6A2B45;--i2:#6A2E42;--i3:#6A333E;--i4:#6A4030;--i5:#6A5228;--i6:#5A1E38;--i7:#6A4530;--i8:#6A3028;
 }
@@ -113,7 +114,7 @@ button{font-family:inherit}
 
 /* ============================ nav ============================ */
 .folderbar{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
-  padding:26px clamp(14px,4%,44px) 0 clamp(2px,1%,10px)}
+  padding:46px clamp(14px,4%,44px) 0 clamp(2px,1%,10px)}
 .logo{font-family:var(--serif);font-weight:500;font-size:1.6rem;letter-spacing:.005em;
   color:var(--ink);display:block;line-height:1;padding-bottom:13px}
 
@@ -199,6 +200,7 @@ button{font-family:inherit}
 .sec-head h2 em{font-style:normal;font-weight:700;color:var(--accent)}
 .sec-head h2.en{font-family:var(--serif);font-weight:400;letter-spacing:0;
   font-size:clamp(1.7rem,3.4vw,2.5rem);line-height:1.15;margin-top:18px}
+.sec-head h2.en em{font-style:italic;font-weight:500;color:inherit}
 .sec-head p + p{margin-top:10px}
 .sec-head p{font-family:var(--kr-display);color:var(--ink-55);margin-top:16px;font-size:.92rem;line-height:1.8}
 .beats{display:flex;flex-direction:column;gap:16px;max-width:800px;margin:0 auto}
@@ -382,7 +384,7 @@ button{font-family:inherit}
 
 @media(max-width:640px){
   :root{--pad:14px}
-  .folderbar{padding:18px 4px 0 4px;gap:8px}
+  .folderbar{padding:32px 4px 0 4px;gap:8px}
   .logo{font-size:1.25rem;padding-bottom:9px}
   .tab{padding:9px 14px;font-size:.79rem;border-radius:11px 11px 0 0}
   .tab[aria-selected="true"]{padding:11px 15px 15px;margin-bottom:-5px}
@@ -519,7 +521,7 @@ button{font-family:inherit}
 
         <section class="sec" id="how">
           <div class="inner">
-            <div class="sec-head rv"><p class="eyebrow">만드는 법</p><h2>세 단계면 <em>끝납니다</em>.</h2></div>
+            <div class="sec-head rv"><p class="eyebrow">만드는 법</p><h2 class="en"><em>3 Steps</em></h2></div>
             <div class="steps">
               <div class="step rv"><span class="n">01</span><h3>강의 담기</h3>
                 <p>강의명과 강의실을 적고 요일·시간을 고릅니다. 요일마다 시간이 다르면 시간 블록을 하나 더 추가하면 됩니다.</p></div>
@@ -663,6 +665,7 @@ button{font-family:inherit}
         <button class="js-bg" data-bg="plain" aria-pressed="true">없음</button>
         <button class="js-bg" data-bg="dots" aria-pressed="false">땡땡이</button>
         <button class="js-bg" data-bg="hearts" aria-pressed="false">하트</button>
+        <button class="js-bg" data-bg="floral" aria-pressed="false">꽃무늬</button>
         <button class="js-bg" data-bg="stripe" aria-pressed="false">스트라이프</button>
         <button class="js-bg" data-bg="gingham" aria-pressed="false">체크</button>
         <button class="js-bg" data-bg="blush" aria-pressed="false">블러쉬</button>
@@ -1062,6 +1065,8 @@ function themeColors(){
   var t={bg:cssVar("--g-bg")||"#fff",ink:cssVar("--g-ink")||"#2A1F26",
          mut:cssVar("--g-mut")||"#888",line:cssVar("--g-line")||"rgba(0,0,0,.1)",
          pal:[],pin:[]};
+  // export-only tone; themes that don't set it fall back to the grid colour
+  t.canvas=cssVar("--g-canvas")||t.bg;
   for(var i=1;i<=8;i++){t.pal[i]=cssVar("--c"+i)||"#ddd";t.pin[i]=cssVar("--i"+i)||"#2A1F26";}
   return t;
 }
@@ -1082,6 +1087,10 @@ function tint(col,a){
   var c=rgbOf(col);
   return "rgba("+c[0]+","+c[1]+","+c[2]+","+a+")";
 }
+function shade(col,f,a){
+  var c=rgbOf(col);
+  return "rgba("+Math.round(c[0]*f)+","+Math.round(c[1]*f)+","+Math.round(c[2]*f)+","+a+")";
+}
 // the pattern has to read as part of the theme, so pull the most
 // characteristic light colour out of the palette instead of hard-coding pink
 function accentOf(T){
@@ -1098,7 +1107,7 @@ function accentOf(T){
 }
 
 function paintBackground(ctx,T,W,H,focusY){
-  ctx.fillStyle=T.bg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=T.canvas||T.bg; ctx.fillRect(0,0,W,H);
   if(exportBg==="plain") return;
   var acc=accentOf(T), u=W/1290, g, x, y, row;
   var fy=focusY||H*.5;
@@ -1118,22 +1127,22 @@ function paintBackground(ctx,T,W,H,focusY){
     for(x=0;x<W;x+=sw*2) ctx.fillRect(x,0,sw,H);
 
   }else if(exportBg==="dots"){
-    var dStep=58*u, dR=Math.max(1.6,5*u);
-    ctx.fillStyle=tint(T.ink,.12);
+    var dX=104*u, dY=64*u, dR=Math.max(3,12*u);
+    ctx.fillStyle=tint(acc,.95);
     row=0;
-    for(y=dStep*.5;y<H+dStep;y+=dStep*.62){
-      for(x=(row%2?dStep*.5:0);x<W+dStep;x+=dStep){
+    for(y=dY*.5;y<H+dY;y+=dY){
+      for(x=(row%2?dX*.5:0);x<W+dX;x+=dX){
         ctx.beginPath(); ctx.arc(x,y,dR,0,Math.PI*2); ctx.fill();
       }
       row++;
     }
 
   }else if(exportBg==="hearts"){
-    var hStep=150*u, hS=Math.max(8,26*u);
-    ctx.fillStyle=tint(T.ink,.16);
+    var hX=124*u, hY=78*u, hS=Math.max(10,30*u);
+    ctx.fillStyle=tint(acc,.95);
     row=0;
-    for(y=hStep*.4;y<H+hStep;y+=hStep*.62){
-      for(x=(row%2?hStep*.5:0);x<W+hStep;x+=hStep){
+    for(y=hY*.35;y<H+hY;y+=hY){
+      for(x=(row%2?hX*.5:0);x<W+hX;x+=hX){
         ctx.beginPath();
         ctx.moveTo(x,y+hS*.30);
         ctx.bezierCurveTo(x,y,x-hS*.50,y,x-hS*.50,y+hS*.30);
@@ -1153,6 +1162,65 @@ function paintBackground(ctx,T,W,H,focusY){
     ctx.fillStyle=tint(acc,.16);
     for(x=band*.34;x<W;x+=band*2) ctx.fillRect(x,0,Math.max(1,2*u),H);
     for(y=band*.34;y<H;y+=band*2) ctx.fillRect(0,y,W,Math.max(1,2*u));
+
+  }else if(exportBg==="floral"){
+    // dense ditsy rose print: layered blooms, sage sprigs, ochre buds.
+    // Fixed seed so a given export always looks the same.
+    var seed=20260810;
+    var rnd=function(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+    var cell=46*u, k, a, cx, cy, r;
+    var petal=tint(acc,.78), petal2=shade(acc,.95,.72),
+        core=shade(acc,.92,.8), swirl=shade(acc,.82,.4);
+    var leaf="rgba(148,156,116,.4)", stem="rgba(150,158,124,.45)", bud="rgba(212,178,116,.45)";
+
+    for(y=-cell;y<H+cell;y+=cell){
+      for(x=-cell;x<W+cell;x+=cell){
+        cx=x+rnd()*cell*1.05; cy=y+rnd()*cell*1.05;
+
+        // a sprig of leaves, offset from the bloom
+        ctx.fillStyle=leaf;
+        for(k=0;k<3;k++){
+          a=rnd()*Math.PI*2;
+          var lr=(5+rnd()*4)*u;
+          ctx.save();
+          ctx.translate(cx+Math.cos(a)*cell*.34,cy+Math.sin(a)*cell*.34);
+          ctx.rotate(a);
+          ctx.beginPath(); ctx.ellipse(0,0,lr*1.5,lr*.62,0,0,Math.PI*2); ctx.fill();
+          ctx.restore();
+        }
+        // thin trailing vine
+        ctx.strokeStyle=stem; ctx.lineWidth=Math.max(.8,1.6*u);
+        ctx.beginPath();
+        a=rnd()*Math.PI*2;
+        ctx.moveTo(cx,cy);
+        ctx.quadraticCurveTo(cx+Math.cos(a)*cell*.3,cy+Math.sin(a)*cell*.5,
+                             cx+Math.cos(a)*cell*.62,cy+Math.sin(a)*cell*.44);
+        ctx.stroke();
+
+        if(rnd()<.24){
+          // small ochre bud instead of a rose
+          ctx.fillStyle=bud;
+          ctx.beginPath(); ctx.arc(cx,cy,(3.5+rnd()*2)*u,0,Math.PI*2); ctx.fill();
+          continue;
+        }
+
+        r=(.7+rnd()*.4)*15*u;
+        ctx.fillStyle=rnd()<.4?petal2:petal;
+        for(k=0;k<5;k++){
+          a=k/5*Math.PI*2+rnd()*.4;
+          ctx.beginPath();
+          ctx.arc(cx+Math.cos(a)*r*.48,cy+Math.sin(a)*r*.48,r*.52,0,Math.PI*2);
+          ctx.fill();
+        }
+        ctx.fillStyle=core;
+        ctx.beginPath(); ctx.arc(cx,cy,r*.46,0,Math.PI*2); ctx.fill();
+        // the coiled centre that makes it read as a rose, not a daisy
+        ctx.strokeStyle=swirl; ctx.lineWidth=Math.max(.8,r*.1);
+        ctx.beginPath(); ctx.arc(cx,cy,r*.24,.5,4.1); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx-r*.04,cy+r*.04,r*.1,2.1,5.5); ctx.stroke();
+      }
+    }
+
   }
 }
 
@@ -1182,8 +1250,7 @@ function drawCard(){
   var ctx=cv.getContext("2d"); ctx.scale(S,S); ctx.textBaseline="middle";
   var T=themeColors();
 
-  paintBackground(ctx,T,W,H,H*.5);
-  drawPlate(ctx,T,22,22,W-44,H-44,20);
+  ctx.fillStyle=T.bg; ctx.fillRect(0,0,W,H);
 
   ctx.fillStyle=T.ink;
   ctx.font='500 21px "Playfair Display",Georgia,serif';
