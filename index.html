@@ -58,12 +58,14 @@ window.GA_MEASUREMENT_ID = 'G-CQHZP66KS7'; /* 측정 ID: 여기 한 곳만 교�
 /* Lemonade — creamy lemon and milky sky blue */
 .tt[data-theme="lemonade"],[data-theme="lemonade"]{
   --g-bg:#FFFEF5; --g-line:rgba(90,80,60,.15); --g-ink:#33465A; --g-mut:rgba(51,70,90,.46);
+  --g-canvas:#FBF6E2; --g-accent:#F5E7A0;
   --c1:#FEFDD7;--c2:#FEF7B9;--c3:#FDE7E6;--c4:#F8CBD1;--c5:#E8F5FC;--c6:#E5EFF6;--c7:#D6E5F0;--c8:#3D5C7B;
   --i1:#5A4A1E;--i2:#5A4A1E;--i3:#6B3A42;--i4:#5C2B36;--i5:#1E3A4E;--i6:#1E3A4E;--i7:#193346;--i8:#FFFFFF;
 }
 /* Opal — pearly neutrals with faint blue, lilac and mint */
 .tt[data-theme="opal"],[data-theme="opal"]{
   --g-bg:#FAFAF8; --g-line:rgba(70,75,85,.15); --g-ink:#2F3238; --g-mut:rgba(47,50,56,.46);
+  --g-canvas:#F4FBF8; --g-accent:#BFE7DC;
   --c1:#CDDFEB;--c2:#F1E2F9;--c3:#D4F0EA;--c4:#EFEEE7;--c5:#DFDCD5;--c6:#F7E4E9;--c7:#FBF2DC;--c8:#BFCEDC;
   --i1:#22323E;--i2:#3A2A42;--i3:#1E3A34;--i4:#333029;--i5:#333029;--i6:#462A32;--i7:#453A22;--i8:#1C2C38;
 }
@@ -1054,6 +1056,35 @@ function clip(ctx,text,max){
   return t+"…";
 }
 
+// Long course names used to be cut with an ellipsis. Wrap them instead,
+// breaking on spaces where possible and mid-word only when a single word
+// is itself too wide (which is the normal case for Korean).
+function wrapText(ctx,text,max,maxLines){
+  var chunks=[];
+  String(text).split(/\s+/).filter(Boolean).forEach(function(w){
+    if(ctx.measureText(w).width<=max){ chunks.push(w); return; }
+    var piece="";
+    for(var k=0;k<w.length;k++){
+      if(ctx.measureText(piece+w[k]).width<=max) piece+=w[k];
+      else { if(piece) chunks.push(piece); piece=w[k]; }
+    }
+    if(piece) chunks.push(piece);
+  });
+  var lines=[], cur="";
+  chunks.forEach(function(c){
+    var cand=cur?cur+" "+c:c;
+    if(!cur||ctx.measureText(cand).width<=max) cur=cand;
+    else { lines.push(cur); cur=c; }
+  });
+  if(cur) lines.push(cur);
+  if(!lines.length) return [""];
+  if(lines.length>maxLines){
+    lines=lines.slice(0,maxLines);
+    lines[maxLines-1]=clip(ctx,lines[maxLines-1]+"…",max);
+  }
+  return lines;
+}
+
 function timeRange(){
   var starts=[],ends=[];
   courses.forEach(function(c){c.slots.forEach(function(s){starts.push(s.start);ends.push(s.end);});});
@@ -1067,6 +1098,7 @@ function themeColors(){
          pal:[],pin:[]};
   // export-only tone; themes that don't set it fall back to the grid colour
   t.canvas=cssVar("--g-canvas")||t.bg;
+  t.accent=cssVar("--g-accent")||"";
   for(var i=1;i<=8;i++){t.pal[i]=cssVar("--c"+i)||"#ddd";t.pin[i]=cssVar("--i"+i)||"#2A1F26";}
   return t;
 }
@@ -1094,6 +1126,10 @@ function shade(col,f,a){
 // the pattern has to read as part of the theme, so pull the most
 // characteristic light colour out of the palette instead of hard-coding pink
 function accentOf(T){
+  // a theme can name its pattern colour outright; the chroma guess below
+  // only runs when it doesn't, and it guesses badly for Opal, whose lilac
+  // sits behind a higher-chroma cream in the palette
+  if(T.accent) return T.accent;
   var best=T.pal[1], bestChroma=-1;
   for(var i=1;i<=8;i++){
     var c=rgbOf(T.pal[i]), mx=Math.max(c[0],c[1],c[2]), mn=Math.min(c[0],c[1],c[2]);
@@ -1264,7 +1300,7 @@ function drawCard(){
     nameFont:'600 14px "Pretendard Variable",Pretendard,sans-serif',
     subFont:'400 12px "Pretendard Variable",Pretendard,sans-serif',
     timeFont:'400 11px "Pretendard Variable",Pretendard,sans-serif',
-    radius:8,pad:8,line2:14,subAt:28,subGap:14});
+    radius:8,pad:9,line2:15,subAt:34,subGap:17});
 
   ctx.fillStyle=T.mut; ctx.globalAlpha=.75;
   ctx.font='italic 11px Georgia,serif'; ctx.textAlign="right";
@@ -1312,7 +1348,7 @@ function drawWallpaper(ipad,landscape){
     nameFont:'600 24px "Pretendard Variable",Pretendard,sans-serif',
     subFont:'400 18px "Pretendard Variable",Pretendard,sans-serif',
     timeFont:'400 16px "Pretendard Variable",Pretendard,sans-serif',
-    radius:13,pad:12,line2:26,subAt:50,subGap:23});
+    radius:13,pad:14,line2:28,subAt:60,subGap:28});
 
   ctx.fillStyle=T.mut; ctx.globalAlpha=.6;
   ctx.font='italic 23px Georgia,serif'; ctx.textAlign="center";
@@ -1351,10 +1387,17 @@ function paintGrid(ctx,T,g){
 
       ctx.fillStyle=T.pin[co.color]||"#2A1F26";
       ctx.font=g.nameFont;
-      ctx.fillText(clip(ctx,co.name,w-g.pad*2),x+g.pad,y+g.line2);
+      var namePx=parseFloat((/([\d.]+)px/.exec(g.nameFont)||[0,14])[1]);
+      var nameLH=namePx*1.32;
+      // a second line is only worth taking if the block still has room
+      // underneath it for the room and time lines
+      var maxLines=(h>=g.subAt+nameLH+6)?2:1;
+      var nameLines=wrapText(ctx,co.name,w-g.pad*2,maxLines);
+      for(var nl=0;nl<nameLines.length;nl++)
+        ctx.fillText(nameLines[nl],x+g.pad,y+g.line2+nl*nameLH);
 
-      var maxW=w-g.pad*2, line=g.subAt;
-      if(co.place && h>g.subAt+6){
+      var maxW=w-g.pad*2, line=g.subAt+(nameLines.length-1)*nameLH;
+      if(co.place && h>line+6){
         ctx.globalAlpha=.85; ctx.font=g.subFont;
         ctx.fillText(clip(ctx,co.place,maxW),x+g.pad,y+line);
         ctx.globalAlpha=1;
