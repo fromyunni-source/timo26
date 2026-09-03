@@ -272,7 +272,7 @@ button{font-family:inherit}
   padding:9px 11px;border:1px solid var(--ink-12);border-radius:9px;background:#fff;transition:border-color .18s ease}
 .field input:hover{border-color:var(--ink-32)}
 .field input:focus{border-color:var(--accent);outline:none}
-.row3{display:grid;grid-template-columns:1fr 1fr 70px;gap:9px}
+.row3{display:grid;grid-template-columns:minmax(0,1fr) 70px;gap:9px}
 
 .slots{display:flex;flex-direction:column;gap:10px;margin-bottom:11px}
 .slot{border:1px solid var(--ink-12);border-radius:11px;padding:11px 11px 12px;background:#FDFBFC}
@@ -286,20 +286,29 @@ button{font-family:inherit}
   font-size:.83rem;font-weight:500;color:var(--ink-55);cursor:pointer;transition:all .16s ease}
 .daypick button:hover{border-color:var(--ink-32)}
 .daypick button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
-.timepair{display:grid;grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);gap:6px;align-items:center}
-.timepair input{width:100%;min-width:0;-webkit-appearance:none;appearance:none;
+.timepair{display:grid;grid-template-columns:1fr;gap:8px}
+.timefield{display:grid;grid-template-columns:32px minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
+.time-label{font-size:.72rem;color:var(--ink-55)}
+.timepart{position:relative;display:flex;align-items:center;min-width:0}
+.timepart span{position:absolute;right:6px;pointer-events:none;font-size:.7rem;color:var(--ink-55)}
+.timepair .timepart input{padding-right:23px}
+.timepair select,.timepair input{width:100%;min-width:0;-webkit-appearance:none;appearance:none;
   font-family:var(--mono);font-variant-numeric:tabular-nums;
   font-size:.86rem;color:var(--ink);text-align:center;
   padding:8px 4px;border:1px solid var(--ink-12);border-radius:8px;background:#fff}
-.timepair input:hover{border-color:var(--ink-32)}
-.timepair input:focus{border-color:var(--accent);outline:none}
+.timepair select:hover,.timepair input:hover{border-color:var(--ink-32)}
+.timepair select:focus,.timepair input:focus{border-color:#8E8E93;background:#E5E5E7;outline:none;box-shadow:0 0 0 2px rgba(90,90,95,.12)}
+.timefield:focus-within{border-radius:8px;background:#F1F1F3}
+.time-help{font-size:.72rem;color:var(--ink-55);margin-bottom:10px}
+.time-error{font-size:.75rem;color:#A12E45;line-height:1.5;margin-top:7px}
+.time-error:empty{display:none}
 .timepair .dash{text-align:center;color:var(--ink-32);font-size:.75rem}
 .durs{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
 .durs button{flex:1;min-width:38px;padding:5px 0;border:1px solid var(--ink-12);background:#fff;
   border-radius:7px;font-family:var(--kr);font-size:.72rem;color:var(--ink-32);cursor:pointer;
   transition:all .16s ease}
 .durs button:hover{border-color:var(--pink-deep);color:var(--accent)}
-.durs button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--pink-soft)}
+.durs button[aria-pressed="true"]{border-color:#A6A6AB;color:var(--ink);background:#E5E5E7}
 
 .addslot{width:100%;border:1px dashed var(--ink-12);background:transparent;border-radius:10px;
   padding:10px;font-size:.83rem;color:var(--ink-55);cursor:pointer;font-weight:500;
@@ -412,10 +421,10 @@ button{font-family:inherit}
   .build-head{padding-bottom:16px;margin-bottom:18px}
   .build-head .swatches{margin-left:0;justify-content:flex-start}
   .panel{padding:18px 15px 20px}
-  .row3{grid-template-columns:1fr 1fr 56px;gap:7px}
+  .row3{grid-template-columns:minmax(0,1fr) 56px;gap:7px}
   .durs button{min-width:0;font-size:.68rem;padding:5px 0}
   .timepair{gap:4px}
-  .timepair input{font-size:.8rem;padding:8px 2px}
+  .timepair select,.timepair input{font-size:.8rem;padding:8px 2px}
   .canvas-head{gap:8px}
   #ttName{width:100%;min-width:0}
   .canvas-tools{width:100%;margin-left:0}
@@ -446,7 +455,7 @@ button{font-family:inherit}
    touch-target input at exactly 16px so tapping a field stays put */
 @media(pointer:coarse){
   .field input,#ttName{font-size:16px}
-  .timepair input{font-size:16px;padding:8px 2px}
+  .timepair select,.timepair input{font-size:16px;padding:8px 2px}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition-duration:.01ms!important}
@@ -530,7 +539,7 @@ button{font-family:inherit}
             <div class="sec-head rv">
               <p class="eyebrow">왜 Timo인가</p>
               <h2 class="en">Time, and More.</h2>
-              <p class="intro">Timo는 Time + More에서 시작되었습니다. 시간표를 더 아름답게, 더 나답게, 더 즐겁게 기록하는 경험을 만듭니다.</p>
+              <p class="intro">Timo는 Time + More에서 시작되었습니다.<br>시간표를 더 예쁘고 더 나답게 만듭니다.</p>
               
             </div>
             <div class="beats">
@@ -591,13 +600,12 @@ button{font-family:inherit}
         <div class="row3">
           <div class="field"><label for="fPlace">강의실</label>
             <input id="fPlace" type="text" placeholder="포B152" maxlength="18" autocomplete="off"></div>
-          <div class="field"><label for="fProf">교수</label>
-            <input id="fProf" type="text" placeholder="OOO" maxlength="12" autocomplete="off"></div>
           <div class="field"><label for="fCredit">학점</label>
             <input id="fCredit" type="number" value="3" min="0" max="9" step="1"></div>
         </div>
 
         <div class="field" style="margin-bottom:8px"><label>요일과 시간</label></div>
+        <p class="time-help">시·분을 직접 입력하거나 목록에서 선택하세요. 분은 5분 단위입니다.</p>
         <div class="slots" id="slotArea"></div>
         <button class="addslot" id="btnAddSlot" type="button">+ 다른 시간 추가</button>
 
@@ -697,7 +705,7 @@ button{font-family:inherit}
     <div class="modal-img"><img id="mImg" alt="내보낸 시간표"></div>
     <div class="modal-foot">
       <a class="btn btn-pink" id="mDl" download="">이미지 저장</a>
-      <p>휴대폰에서는 공유 시트의 사진에 저장을 눌러 주세요. 시트가 열리지 않으면 위 미리보기 이미지를 길게 눌러 저장할 수 있습니다.</p>
+      <p>이미지는 다운로드 폴더에 저장됩니다. 휴대폰에서 사진 앱에 저장하려면 위 이미지를 길게 눌러 주세요. 다운로드가 지원되지 않는 앱 내 브라우저에서도 길게 눌러 저장할 수 있습니다.</p>
     </div>
   </div>
 </div>
@@ -878,7 +886,9 @@ var DAYS_KO=["월","화","수","목","금"];
 var START=6*60, LAST=24*60, STEP=1, MAXSLOTS=4;
 var PXMIN=0.7;
 
-function fmt(m){return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");}
+function hour12(m){return Math.floor(m/60)%12||12;}
+function fmt(m){return hour12(m)+":"+String(m%60).padStart(2,"0");}
+function choiceTime(m){return (m===1440?'다음 날 오전 ':m<720?'오전 ':'오후 ')+fmt(m);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(m){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m];});}
 function toMin(v){
@@ -891,17 +901,13 @@ function toMin(v){
 
 function renderGrid(el,list,opts){
   opts=opts||{};
-  var ends=[],starts=[];
-  list.forEach(function(c){c.slots.forEach(function(s){ends.push(s.end);starts.push(s.start);});});
-  var top=Math.max(START,Math.floor(Math.min.apply(null,starts.concat([9*60]))/60)*60);
-  var bottom=Math.min(LAST,Math.ceil(Math.max.apply(null,ends.concat([18*60]))/60)*60);
-  var n=bottom-top;
+  var range=timeRange(list), top=range.top, bottom=range.bottom, n=range.n;
 
   el.style.gridTemplateRows="22px repeat("+n+","+(opts.pxmin||PXMIN)+"px)";
   var h='<div class="day"></div>';
   DAYS.forEach(function(d){h+='<div class="day">'+d+'</div>';});
   for(var m=top;m<bottom;m+=60){
-    h+='<div class="time" style="grid-column:1;grid-row:'+(m-top+2)+' / span 60">'+Math.floor(m/60)+'</div>';}
+    h+='<div class="time" style="grid-column:1;grid-row:'+(m-top+2)+' / span '+Math.min(60,bottom-m)+'">'+(m%60 ? fmt(m) : hour12(m))+'</div>';}
   for(var d=1;d<=5;d++){
     h+='<div class="cellcol" style="grid-column:'+(d+1)+';grid-row:2 / span '+n+'"></div>';}
   if(!list.length&&opts.emptyText){
@@ -909,7 +915,7 @@ function renderGrid(el,list,opts){
   var k=0;
   list.forEach(function(c){
     c.slots.forEach(function(s){
-      var r=s.start-top+2, span=Math.max(10,s.end-s.start);
+      var r=s.start-top+2, span=s.end-s.start;
       var meta=[c.place,c.prof].filter(Boolean).join(" · ");
       var span2 = opts.detail
         ? (meta?'<span>'+esc(meta)+'</span>':'')+'<em>'+fmt(s.start)+'–'+fmt(s.end)+'</em>'
@@ -964,11 +970,46 @@ var app=document.getElementById("pageBuild");
 var appTT=document.getElementById("appTT"), appGrid=document.getElementById("appGrid");
 var courses=[], editingId=null, pickedColor=1, uid=0;
 
-var DURS=[50,60,75,90,100,120];
+var DURS=[30,60,75,90,100,120];
 var rows=[{days:[],start:9*60,end:10*60+30}];
 var slotArea=document.getElementById("slotArea");
 var btnAddSlot=document.getElementById("btnAddSlot");
 
+function timeFields(value,key,index){
+  var title=key==='start'?'시작':'종료', base='time'+index+key;
+  var period=value===1440?'next':value<720?'am':'pm';
+  var hours='',minutes='';
+  for(var n=1;n<=12;n++) hours+='<option value="'+n+'"></option>';
+  for(var n=0;n<60;n+=5) minutes+='<option value="'+String(n).padStart(2,'0')+'"></option>';
+  return '<div class="timefield" data-k="'+key+'"><span class="time-label">'+title+'</span>'+
+    '<select data-part="period" aria-label="'+title+' 오전/오후" aria-describedby="timeError'+index+'">'+
+    '<option value="am"'+(period==='am'?' selected':'')+'>오전</option>'+
+    '<option value="pm"'+(period==='pm'?' selected':'')+'>오후</option>'+
+    (key==='end'?'<option value="next"'+(period==='next'?' selected':'')+'>다음 날 오전</option>':'')+'</select>'+
+    '<label class="timepart"><input type="text" inputmode="numeric" maxlength="2" autocomplete="off" list="'+base+'Hours" data-part="hour" value="'+hour12(value)+'" aria-label="'+title+' 시" aria-describedby="timeError'+index+'"><span>시</span></label>'+
+    '<label class="timepart"><input type="text" inputmode="numeric" maxlength="2" autocomplete="off" list="'+base+'Minutes" data-part="minute" value="'+String(value%60).padStart(2,'0')+'" aria-label="'+title+' 분" aria-describedby="timeError'+index+'"><span>분</span></label>'+
+    '<datalist id="'+base+'Hours">'+hours+'</datalist><datalist id="'+base+'Minutes">'+minutes+'</datalist></div>';
+}
+function parseTimeParts(period,hour,minute){
+  if(!/^\d{1,2}$/.test(hour)||!/^\d{1,2}$/.test(minute)) return NaN;
+  var hr=Number(hour),min=Number(minute);
+  if(hr<1||hr>12||min<0||min>59||min%5) return NaN;
+  if(period==='next') return hr===12&&min===0?1440:NaN;
+  if(period!=='am'&&period!=='pm') return NaN;
+  return (hr%12+(period==='pm'?12:0))*60+min;
+}
+function syncTimeFields(field,value){
+  field.querySelector('[data-part="period"]').value=value===1440?'next':value<720?'am':'pm';
+  field.querySelector('[data-part="hour"]').value=String(hour12(value));
+  field.querySelector('[data-part="minute"]').value=String(value%60).padStart(2,'0');
+}
+function timeSelectionError(row,key,value){
+  if(!Number.isFinite(value)||value%5||value<START||value>LAST)
+    return '시는 1~12, 분은 00~55 사이의 5분 단위로 입력해 주세요. 수업 시간은 오전 6시~밤 12시까지 가능합니다.';
+  if((key==='start' && value>=row.end)||(key==='end' && value<=row.start))
+    return '시작 시간은 종료 시간보다 빨라야 합니다. 종료 시간을 시작 시간보다 늦게 선택해 주세요.';
+  return '';
+}
 function renderSlots(){
   slotArea.innerHTML=rows.map(function(r,i){
     return '<div class="slot" data-i="'+i+'">'+
@@ -978,10 +1019,9 @@ function renderSlots(){
         return '<button type="button" data-d="'+di+'" aria-pressed="'+(r.days.indexOf(di)>-1)+'">'+d+'</button>';
       }).join("")+'</div>'+
       '<div class="timepair">'+
-        '<input type="time" data-k="start" step="60" value="'+fmt(r.start)+'" aria-label="시작 시간">'+
-        '<span class="dash">–</span>'+
-        '<input type="time" data-k="end" step="60" value="'+fmt(r.end)+'" aria-label="종료 시간">'+
+        timeFields(r.start,'start',i)+timeFields(r.end,'end',i)+
       '</div>'+
+      '<p id="timeError'+i+'" class="time-error" role="status" aria-live="polite"></p>'+
       '<div class="durs">'+DURS.map(function(d){
         return '<button type="button" data-dur="'+d+'"'+
                (r.end-r.start===d?' aria-pressed="true"':'')+'>'+d+'분</button>';
@@ -997,7 +1037,10 @@ slotArea.addEventListener("click",function(e){
   var du=e.target.closest("[data-dur]");
   if(du){
     var si=+du.closest(".slot").dataset.i;
-    rows[si].end=Math.min(24*60,rows[si].start+ +du.dataset.dur);
+    var nextEnd=rows[si].start+ +du.dataset.dur;
+    var error=timeSelectionError(rows[si],'end',nextEnd);
+    if(error){du.closest('.slot').querySelector('.time-error').textContent=error;return;}
+    rows[si].end=nextEnd;
     renderSlots(); return;
   }
   var db=e.target.closest(".daypick button"); if(!db)return;
@@ -1005,25 +1048,19 @@ slotArea.addEventListener("click",function(e){
   if(at>-1) rows[i].days.splice(at,1); else rows[i].days.push(d);
   db.setAttribute("aria-pressed",String(at===-1));
 });
-slotArea.addEventListener("input",function(e){
-  var inp=e.target.closest('input[type="time"]'); if(!inp)return;
-  var slot=inp.closest(".slot"), i=+slot.dataset.i, v=toMin(inp.value);
-  if(v===null) return;
-  rows[i][inp.dataset.k]=v;
-});
 slotArea.addEventListener("change",function(e){
-  var inp=e.target.closest('input[type="time"]'); if(!inp)return;
-  var slot=inp.closest(".slot"), i=+slot.dataset.i, v=toMin(inp.value);
-  if(v===null){ inp.value=fmt(rows[i][inp.dataset.k]); return; }
-  rows[i][inp.dataset.k]=v;
-  if(rows[i].end<=rows[i].start){
-    rows[i].end=Math.min(24*60,rows[i].start+60);
-    slot.querySelector('[data-k="end"]').value=fmt(rows[i].end);
-  }
+  var inp=e.target.closest('[data-part]'); if(!inp)return;
+  var field=inp.closest('.timefield'),slot=inp.closest('.slot'),i=+slot.dataset.i,key=field.dataset.k;
+  var value=parseTimeParts(field.querySelector('[data-part="period"]').value,
+    field.querySelector('[data-part="hour"]').value.trim(),field.querySelector('[data-part="minute"]').value.trim());
+  var error=timeSelectionError(rows[i],key,value),errorEl=slot.querySelector('.time-error');
+  if(error){syncTimeFields(field,rows[i][key]);errorEl.textContent=error;return;}
+  rows[i][key]=value;
+  syncTimeFields(field,value);
+  errorEl.textContent='';
   var len=rows[i].end-rows[i].start;
-  slot.querySelectorAll("[data-dur]").forEach(function(b){
-    if(+b.dataset.dur===len) b.setAttribute("aria-pressed","true");
-    else b.removeAttribute("aria-pressed");
+  slot.querySelectorAll('[data-dur]').forEach(function(b){
+    b.setAttribute('aria-pressed',String(+b.dataset.dur===len));
   });
 });
 btnAddSlot.addEventListener("click",function(){
@@ -1074,11 +1111,11 @@ function findClash(slots,ignoreId){
 document.getElementById("btnSave").addEventListener("click",function(){
   var name=document.getElementById("fName").value.trim();
   var place=document.getElementById("fPlace").value.trim();
-  var prof=document.getElementById("fProf").value.trim();
   var credit=Math.max(0,Math.min(9,parseInt(document.getElementById("fCredit").value,10)||0));
 
   if(!name){msg("강의명을 입력하세요.");document.getElementById("fName").focus();trackValidation("no_name");return;}
   for(var i=0;i<rows.length;i++){
+    if(rows[i].start%5||rows[i].end%5){msg("시간 "+(i+1)+"을 5분 단위로 다시 선택해 주세요.");trackValidation("invalid_time");return;}
     if(rows[i].end<=rows[i].start){msg("시간 "+(i+1)+"의 종료 시간이 시작보다 늦어야 합니다.");trackValidation("invalid_time");return;}
   }
   var slots=expand();
@@ -1090,11 +1127,11 @@ document.getElementById("btnSave").addEventListener("click",function(){
 
   if(editingId){
     var c=courses.find(function(x){return x.id===editingId;});
-    c.name=name;c.place=place;c.prof=prof;c.credit=credit;c.color=pickedColor;c.slots=slots;
+    c.name=name;c.place=place;c.credit=credit;c.color=pickedColor;c.slots=slots;
     toast("수정했습니다"); exitEdit();
     window.__timoTrack("course_edit",{slot_count:slots.length,course_count:courses.length});
   }else{
-    courses.push({id:"c"+(++uid),name:name,place:place,prof:prof,credit:credit,color:pickedColor,slots:slots});
+    courses.push({id:"c"+(++uid),name:name,place:place,credit:credit,color:pickedColor,slots:slots});
     toast(name+" 담았습니다"); resetForm();
     window.__timoTrack("course_add",{course_index:courses.length,slot_count:slots.length,course_count:courses.length});
     trackFirstCourse();
@@ -1105,7 +1142,6 @@ document.getElementById("btnSave").addEventListener("click",function(){
 function resetForm(){
   document.getElementById("fName").value="";
   document.getElementById("fPlace").value="";
-  document.getElementById("fProf").value="";
   document.getElementById("fCredit").value="3";
   rows=[{days:[],start:9*60,end:10*60+30}];
   renderSlots();
@@ -1120,7 +1156,6 @@ function enterEdit(id){
   editingId=id;
   document.getElementById("fName").value=c.name;
   document.getElementById("fPlace").value=c.place;
-  document.getElementById("fProf").value=c.prof;
   document.getElementById("fCredit").value=c.credit;
   var map={},order=[];
   c.slots.forEach(function(s){var k=s.start+"-"+s.end;
@@ -1266,11 +1301,12 @@ function wrapText(ctx,text,max,maxLines){
   return lines;
 }
 
-function timeRange(){
+function timeRange(list){
   var starts=[],ends=[];
-  courses.forEach(function(c){c.slots.forEach(function(s){starts.push(s.start);ends.push(s.end);});});
-  var top=Math.max(START,Math.floor(Math.min.apply(null,starts.concat([9*60]))/60)*60);
-  var bottom=Math.min(LAST,Math.ceil(Math.max.apply(null,ends.concat([18*60]))/60)*60);
+  (list||courses).forEach(function(c){c.slots.forEach(function(s){starts.push(s.start);ends.push(s.end);});});
+  // Fit the exact earliest start and latest end across all weekdays.
+  var top=starts.length ? Math.min.apply(null,starts) : 9*60;
+  var bottom=ends.length ? Math.max.apply(null,ends) : 18*60;
   return {top:top,bottom:bottom,n:bottom-top};
 }
 function themeColors(){
@@ -1458,7 +1494,7 @@ function drawCard(){
   // whole draw so paintBackground and drawPlate both stand down
   var prevBg=exportBg; exportBg="plain";
   try{
-  var S=2, PAD=26, HEAD=62, TIMEW=44, DAYH=28, ROWH=26/30, COLW=132, GAP=3;
+  var S=2, PAD=26, HEAD=62, TIMEW=60, DAYH=34, ROWH=40/30, COLW=132, GAP=3;
   var R=timeRange(), n=R.n, top=R.top;
   var W=PAD*2+TIMEW+COLW*5, H=PAD*2+HEAD+DAYH+ROWH*n;
 
@@ -1476,12 +1512,12 @@ function drawCard(){
 
   var gx=PAD, gy=PAD+HEAD;
   paintGrid(ctx,T,{x:gx,y:gy,timeW:TIMEW,colW:COLW,dayH:DAYH,rowH:ROWH,gap:GAP,
-    top:top,n:n,dayFont:'500 13px "Pretendard Variable",Pretendard,sans-serif',
-    hourFont:'400 12px "Pretendard Variable",Pretendard,sans-serif',
-    nameFont:'600 14px "Pretendard Variable",Pretendard,sans-serif',
-    subFont:'400 12px "Pretendard Variable",Pretendard,sans-serif',
-    timeFont:'400 11px "Pretendard Variable",Pretendard,sans-serif',
-    radius:8,pad:9,line2:15,subAt:34,subGap:17});
+    top:top,n:n,dayFont:'500 16px "Pretendard Variable",Pretendard,sans-serif',
+    hourFont:'400 15px "Pretendard Variable",Pretendard,sans-serif',
+    nameFont:'600 18px "Pretendard Variable",Pretendard,sans-serif',
+    subFont:'400 15px "Pretendard Variable",Pretendard,sans-serif',
+    timeFont:'400 14px "Pretendard Variable",Pretendard,sans-serif',
+    radius:8,pad:9,line2:17,subAt:40,subGap:20});
 
   ctx.fillStyle=T.mut; ctx.globalAlpha=.75;
   ctx.font='italic 11px Georgia,serif'; ctx.textAlign="right";
@@ -1494,10 +1530,10 @@ function drawCard(){
 function drawWallpaper(ipad,landscape){
   var W = ipad ? (landscape?2732:2048) : 1290, H = ipad ? (landscape?2048:2732) : 2796;
   var BASEW = ipad ? 2048 : 1290;
-  var PAD=155, TIMEW=68, DAYH=54, GAP=5;
+  var PAD=155, TIMEW=96, DAYH=54, GAP=5;
   var COLW=(BASEW-PAD*2-TIMEW)/5;
   var gx=PAD+(W-BASEW)/2;
-  var CLOCK=830;
+  var CLOCK=830+Math.round(H*0.03); // Lower the wallpaper timetable by 3% of image height.
   var FOOT=250;
   var R=timeRange(), n=R.n, top=R.top;
 
@@ -1508,9 +1544,9 @@ function drawWallpaper(ipad,landscape){
 
   var titleY=CLOCK+78;
   var availTop=titleY+84, availBottom=H-FOOT;
-  var rowH=Math.min(76/30,Math.max(38/30,(availBottom-availTop-DAYH)/n));
+  var rowH=Math.min(76/30,(availBottom-availTop-DAYH)/n);
   var gridH=DAYH+rowH*n;
-  var gy=availTop+Math.max(0,(availBottom-availTop-gridH)/2);
+  var gy=availTop;
 
   var plx=gx-46, plw=TIMEW+COLW*5+92;
   var ply=titleY-104, plh=(gy+gridH+56)-ply;
@@ -1524,12 +1560,12 @@ function drawWallpaper(ipad,landscape){
   ctx.fillText(ttName.value||"2026 - 2",W/2,titleY);
 
   paintGrid(ctx,T,{x:gx,y:gy,timeW:TIMEW,colW:COLW,dayH:DAYH,rowH:rowH,gap:GAP,
-    top:top,n:n,dayFont:'500 24px "Pretendard Variable",Pretendard,sans-serif',
-    hourFont:'400 21px "Pretendard Variable",Pretendard,sans-serif',
-    nameFont:'600 24px "Pretendard Variable",Pretendard,sans-serif',
-    subFont:'400 18px "Pretendard Variable",Pretendard,sans-serif',
-    timeFont:'400 16px "Pretendard Variable",Pretendard,sans-serif',
-    radius:13,pad:14,line2:28,subAt:60,subGap:28});
+    top:top,n:n,dayFont:'500 30px "Pretendard Variable",Pretendard,sans-serif',
+    hourFont:'400 27px "Pretendard Variable",Pretendard,sans-serif',
+    nameFont:'600 32px "Pretendard Variable",Pretendard,sans-serif',
+    subFont:'400 24px "Pretendard Variable",Pretendard,sans-serif',
+    timeFont:'400 22px "Pretendard Variable",Pretendard,sans-serif',
+    radius:13,pad:14,line2:28,subAt:68,subGap:31});
 
   ctx.fillStyle=T.mut; ctx.globalAlpha=.6;
   ctx.font='italic 23px Georgia,serif'; ctx.textAlign="center";
@@ -1545,9 +1581,13 @@ function paintGrid(ctx,T,g){
   });
 
   ctx.textAlign="right"; ctx.font=g.hourFont; ctx.fillStyle=T.mut;
+  // Anchor hour labels to the start of each hour, as in the on-screen grid.
+  ctx.save();
+  ctx.textBaseline="top";
   for(var m=g.top;m<g.top+g.n;m+=60){
-    ctx.fillText(String(Math.floor(m/60)),g.x+g.timeW-14,g.y+g.dayH+g.rowH*(m-g.top)+g.rowH*30);
+    ctx.fillText(m%60 ? fmt(m) : String(hour12(m)),g.x+g.timeW-14,g.y+g.dayH+g.rowH*(m-g.top)+g.gap/2);
   }
+  ctx.restore();
 
   ctx.strokeStyle=T.line; ctx.lineWidth=1;
   for(var c=0;c<5;c++){
@@ -1561,7 +1601,7 @@ function paintGrid(ctx,T,g){
       var x=g.x+g.timeW+g.colW*s.day+g.gap,
           y=g.y+g.dayH+(s.start-g.top)*g.rowH+g.gap/2,
           w=g.colW-g.gap*2,
-          h=Math.max(10*g.rowH,(s.end-s.start)*g.rowH)-g.gap;
+          h=Math.max(0,(s.end-s.start)*g.rowH-g.gap);
       ctx.fillStyle=T.pal[co.color]||"#ddd";
       roundRect(ctx,x,y,w,h,g.radius); ctx.fill();
       ctx.strokeStyle="rgba(0,0,0,.06)"; ctx.lineWidth=1; ctx.stroke();
@@ -1653,59 +1693,21 @@ document.querySelectorAll(".js-mode").forEach(function(b){
     buildImage(false);
   });
 });
-// The download attribute is a no-op in iOS Safari and in most in-app
-// browsers (KakaoTalk, Instagram): the link just opens the PNG at full
-// size, which reads as the page blowing up. So on ANY touch device we
-// never let the navigation happen — share sheet if we can, long-press
-// guidance if we can't. Desktop keeps the ordinary download.
-function isTouch(){
-  try{ return window.matchMedia("(pointer:coarse)").matches; }
-  catch(err){ return "ontouchstart" in window; }
-}
 function saveHint(){
-  toast("아래 이미지를 길게 눌러 사진에 저장하세요");
-  try{ mImg.scrollIntoView({block:"center",behavior:"smooth"}); }catch(err){}
-  mImg.classList.add("nudge");
-  setTimeout(function(){ mImg.classList.remove("nudge"); },2400);
-}
-function canSharePng(file){
-  try{ return !!(file && navigator.share && navigator.canShare &&
-                 navigator.canShare({files:[file]})); }
-  catch(err){ return false; }
+  toast("위 이미지를 길게 눌러 사진에 저장하세요");
+  try{mImg.scrollIntoView({block:"center",behavior:"smooth"});}catch(err){}
 }
 mDl.addEventListener("click",function(e){
-  if(!lastBlob){ e.preventDefault(); toast("이미지를 준비하는 중입니다"); return; }
-  var file=null;
-  try{ file=new File([lastBlob],mDl.download||"timo.png",{type:"image/png"}); }
-  catch(err){ file=null; }
-
-  var shareable=canSharePng(file);
-  /* 웹에서는 사진 앱 저장 완료를 알 수 없다. 이 이벤트는 "저장 의도"를 센다. */
-  var method = shareable ? "share_sheet" : (isTouch() ? "long_press" : "direct_download");
+  if(!lastBlob){e.preventDefault();toast("이미지를 준비하는 중입니다");return;}
+  var canDownload="download" in document.createElement("a");
   var ctx=getAnalyticsContext();
-  window.__timoTrack("image_save_click",
-    withUTM(merge(ctx,{method:method,time_to_export:timeToExport()})));
+  window.__timoTrack("image_save_click",withUTM(merge(ctx,{
+    method:canDownload?"direct_download":"long_press",time_to_export:timeToExport()
+  })));
+  if(!canDownload){e.preventDefault();saveHint();return;}
+  // Follow the PNG download link directly; never invoke the share sheet.
   maybeFeedback(ctx);
-
-  if(shareable){
-    e.preventDefault();
-    try{
-      navigator.share({files:[file],title:mDl.download||"Timo"}).then(function(){
-        window.__timoTrack("export_share",merge(ctx,{}));
-      }).catch(function(err){
-        if(err&&err.name==="AbortError") return;
-        saveHint();
-      });
-    }catch(err){ saveHint(); }
-    return;
-  }
-
-  if(isTouch()){ e.preventDefault(); saveHint(); return; }
-  if(!("download" in document.createElement("a"))){ e.preventDefault(); saveHint(); }
 });
-
-// on a phone the button should say what it will actually do
-if(isTouch()) mDl.textContent="이미지 저장";
 
 /* ---------------- 만족도 조사 (저장 클릭 후 일정 확률, 세션 1회) ---------------- */
 var FB_PROBABILITY=0.3;
@@ -1721,7 +1723,7 @@ function maybeFeedback(ctx){
   fbRating=0; fbFeature=""; fbDone=false;
   fbModal.querySelectorAll("#fbRate button,#fbOpts button").forEach(function(x){
     x.setAttribute("aria-pressed","false");});
-  /* 공유 시트가 떠 있는 동안 겹치지 않도록 잠깐 뒤에 띄운다 */
+  /* 다운로드 클릭 직후에는 안내와 겹치지 않도록 잠깐 뒤에 띄운다 */
   setTimeout(function(){ fbModal.classList.remove("hidden"); },1400);
 }
 function closeFeedback(reason){
