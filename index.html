@@ -287,18 +287,27 @@ button{font-family:inherit}
 .daypick button:hover{border-color:var(--ink-32)}
 .daypick button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .timepair{display:grid;grid-template-columns:1fr;gap:8px}
-.timefield{display:grid;grid-template-columns:32px minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
-.time-label{font-size:.72rem;color:var(--ink-55)}
+.timefield{display:grid;grid-template-columns:44px minmax(76px,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
+.time-label{font-size:.72rem;color:var(--ink-55);text-align:center;justify-self:center;width:100%;font-weight:500}
 .timepart{position:relative;display:flex;align-items:center;min-width:0}
-.timepart span{position:absolute;right:6px;pointer-events:none;font-size:.7rem;color:var(--ink-55)}
-.timepair .timepart input{padding-right:23px}
-.timepair select,.timepair input{width:100%;min-width:0;-webkit-appearance:none;appearance:none;
-  font-family:var(--mono);font-variant-numeric:tabular-nums;
+.timepair input,.timefield>select[data-part="period"]{
+  width:100%;min-width:0;font-family:var(--mono);font-variant-numeric:tabular-nums;
   font-size:.86rem;color:var(--ink);text-align:center;
   padding:8px 4px;border:1px solid var(--ink-12);border-radius:8px;background:#fff}
-.timepair select:hover,.timepair input:hover{border-color:var(--ink-32)}
-.timepair select:focus,.timepair input:focus{border-color:#8E8E93;background:#E5E5E7;outline:none;box-shadow:0 0 0 2px rgba(90,90,95,.12)}
+.timepair input{-webkit-appearance:none;appearance:none;padding-right:43px}
+.timefield>select[data-part="period"]{
+  -webkit-appearance:auto;appearance:auto;text-align:center;text-align-last:center;
+  padding-left:10px;padding-right:24px}
+.timepair input:hover,.timefield>select[data-part="period"]:hover{border-color:var(--ink-32)}
+.timepair input:focus,.timefield>select[data-part="period"]:focus{border-color:#8E8E93;background:#E5E5E7;outline:none;box-shadow:0 0 0 2px rgba(90,90,95,.12)}
+.time-unit{position:absolute;right:27px;pointer-events:none;font-size:.7rem;color:var(--ink-55);z-index:1}
+.timepicker-arrow{position:absolute;right:8px;pointer-events:none;font-size:.72rem;color:var(--ink-55);line-height:1;z-index:1}
+.timepicker-native{
+  position:absolute;right:0;top:0;width:28px!important;height:100%;margin:0;padding:0!important;
+  opacity:.01;z-index:2;cursor:pointer;border:0!important;background:transparent!important;
+  -webkit-appearance:menulist;appearance:menulist}
 .timefield:focus-within{border-radius:8px;background:#F1F1F3}
+#btnExport{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .time-help{font-size:.72rem;color:var(--ink-55);margin-bottom:10px}
 .time-error{font-size:.75rem;color:#A12E45;line-height:1.5;margin-top:7px}
 .time-error:empty{display:none}
@@ -387,6 +396,7 @@ button{font-family:inherit}
 .modal-foot{padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   border-top:1px solid var(--ink-12)}
 .modal-foot p{font-size:.76rem;color:var(--ink-32);flex:1;min-width:180px;line-height:1.45}
+.modal-foot .btn:disabled{opacity:.48;cursor:wait;transform:none;box-shadow:none}
 
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;pointer-events:none;
   background:var(--ink);color:#fff;padding:11px 20px;border-radius:99px;font-size:.85rem;z-index:100;
@@ -423,8 +433,14 @@ button{font-family:inherit}
   .panel{padding:18px 15px 20px}
   .row3{grid-template-columns:minmax(0,1fr) 56px;gap:7px}
   .durs button{min-width:0;font-size:.68rem;padding:5px 0}
-  .timepair{gap:4px}
-  .timepair select,.timepair input{font-size:.8rem;padding:8px 2px}
+  .timepair{gap:5px}
+  .timefield{grid-template-columns:42px minmax(74px,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:5px}
+  .time-label{text-align:center;justify-self:center}
+  .timepair input,.timefield>select[data-part="period"]{font-size:.8rem;padding-top:9px;padding-bottom:9px}
+  .timefield>select[data-part="period"]{text-align:center;text-align-last:center;padding-left:8px;padding-right:22px}
+  .timepair input{padding-right:40px}
+  .time-unit{right:25px}
+  .timepicker-arrow{right:7px}
   .canvas-head{gap:8px}
   #ttName{width:100%;min-width:0}
   .canvas-tools{width:100%;margin-left:0}
@@ -455,7 +471,7 @@ button{font-family:inherit}
    touch-target input at exactly 16px so tapping a field stays put */
 @media(pointer:coarse){
   .field input,#ttName{font-size:16px}
-  .timepair select,.timepair input{font-size:16px;padding:8px 2px}
+  .timepair input,.timefield>select[data-part="period"]{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition-duration:.01ms!important}
@@ -605,7 +621,7 @@ button{font-family:inherit}
         </div>
 
         <div class="field" style="margin-bottom:8px"><label>요일과 시간</label></div>
-        <p class="time-help">시·분을 직접 입력하거나 목록에서 선택하세요. 분은 5분 단위입니다.</p>
+        <p class="time-help">시·분을 직접 입력하거나 각 칸 오른쪽 ▼를 눌러 선택하세요. 분은 5분 단위입니다.</p>
         <div class="slots" id="slotArea"></div>
         <button class="addslot" id="btnAddSlot" type="button">+ 다른 시간 추가</button>
 
@@ -647,7 +663,7 @@ button{font-family:inherit}
         <input id="ttName" value="2026 - 2" maxlength="24" placeholder="2026 - 2" aria-label="시간표 이름">
         <div class="canvas-tools">
           <button class="btn btn-ghost" id="btnClear">전체 지우기</button>
-          <button class="btn btn-pink" id="btnExport">이미지로 저장</button>
+          <button class="btn btn-pink" id="btnExport" type="button">이미지로 저장</button>
         </div>
       </div>
       <div class="tt raised" id="appTT" data-theme="peach">
@@ -704,8 +720,9 @@ button{font-family:inherit}
     </div>
     <div class="modal-img"><img id="mImg" alt="내보낸 시간표"></div>
     <div class="modal-foot">
-      <a class="btn btn-pink" id="mDl" download="">이미지 저장</a>
-      <p id="saveGuide">이미지는 다운로드 폴더에 저장됩니다. 휴대폰에서 사진 앱에 저장하려면 위 이미지를 길게 눌러 주세요.</p>
+      <button class="btn btn-pink" id="mDl" type="button" disabled>이미지 준비 중…</button>
+      <a class="btn btn-ghost hidden" id="mOpen" target="_blank" rel="noopener">이미지 크게 보기</a>
+      <p id="saveGuide">이미지를 준비하고 있어요.</p>
     </div>
   </div>
 </div>
@@ -881,6 +898,13 @@ var ctaVariant=(function(){
 })();
 
 var exportBusy=false;
+function setExportBusy(v){
+  exportBusy=!!v;
+  var b=document.getElementById("btnExport");
+  if(!b) return;
+  b.disabled=exportBusy;
+  b.textContent=exportBusy ? "만드는 중…" : "이미지로 저장";
+}
 var DAYS=["MON","TUE","WED","THU","FRI"];
 var DAYS_KO=["월","화","수","목","금"];
 var START=6*60, LAST=24*60, STEP=1, MAXSLOTS=4;
@@ -977,19 +1001,23 @@ var slotArea=document.getElementById("slotArea");
 var btnAddSlot=document.getElementById("btnAddSlot");
 
 function timeFields(value,key,index){
-  var title=key==='start'?'시작':'종료', base='time'+index+key;
+  var title=key==='start'?'시작':'종료';
   var period=value===1440?'next':value<720?'am':'pm';
-  var hours='',minutes='';
-  for(var n=1;n<=12;n++) hours+='<option value="'+n+'"></option>';
-  for(var n=0;n<60;n+=5) minutes+='<option value="'+String(n).padStart(2,'0')+'"></option>';
-  return '<div class="timefield" data-k="'+key+'"><span class="time-label">'+title+'</span>'+
+  var hourValue=String(hour12(value));
+  var minuteValue=String(value%60).padStart(2,'0');
+  var hourOpts='',minuteOpts='';
+  for(var n=1;n<=12;n++) hourOpts+='<option value="'+n+'"'+(String(n)===hourValue?' selected':'')+'>'+n+'시</option>';
+  for(var m=0;m<60;m+=5){
+    var mm=String(m).padStart(2,'0');
+    minuteOpts+='<option value="'+mm+'"'+(mm===minuteValue?' selected':'')+'>'+mm+'분</option>';
+  }
+  return '<div class="timefield" data-k="'+key+'"><span class="time-label">'+title+'</span>'+ 
     '<select data-part="period" aria-label="'+title+' 오전/오후" aria-describedby="timeError'+index+'">'+
-    '<option value="am"'+(period==='am'?' selected':'')+'>오전</option>'+
-    '<option value="pm"'+(period==='pm'?' selected':'')+'>오후</option>'+
-    (key==='end'?'<option value="next"'+(period==='next'?' selected':'')+'>다음 날 오전</option>':'')+'</select>'+
-    '<label class="timepart"><input type="text" inputmode="numeric" maxlength="2" autocomplete="off" list="'+base+'Hours" data-part="hour" value="'+hour12(value)+'" aria-label="'+title+' 시" aria-describedby="timeError'+index+'"><span>시</span></label>'+
-    '<label class="timepart"><input type="text" inputmode="numeric" maxlength="2" autocomplete="off" list="'+base+'Minutes" data-part="minute" value="'+String(value%60).padStart(2,'0')+'" aria-label="'+title+' 분" aria-describedby="timeError'+index+'"><span>분</span></label>'+
-    '<datalist id="'+base+'Hours">'+hours+'</datalist><datalist id="'+base+'Minutes">'+minutes+'</datalist></div>';
+    '<option value="am"'+(period==='am'?' selected':'')+'>오전</option>'+ 
+    '<option value="pm"'+(period==='pm'?' selected':'')+'>오후</option>'+ 
+    (key==='end'?'<option value="next"'+(period==='next'?' selected':'')+'>다음 날 오전</option>':'')+'</select>'+ 
+    '<label class="timepart"><input type="text" inputmode="numeric" maxlength="2" autocomplete="off" data-part="hour" value="'+hourValue+'" aria-label="'+title+' 시 직접 입력" aria-describedby="timeError'+index+'"><span class="time-unit">시</span><select class="timepicker-native" data-pick="hour" aria-label="'+title+' 시 선택">'+hourOpts+'</select><span class="timepicker-arrow" aria-hidden="true">▼</span></label>'+ 
+    '<label class="timepart"><input type="text" inputmode="numeric" maxlength="2" autocomplete="off" data-part="minute" value="'+minuteValue+'" aria-label="'+title+' 분 직접 입력" aria-describedby="timeError'+index+'"><span class="time-unit">분</span><select class="timepicker-native" data-pick="minute" aria-label="'+title+' 분 선택">'+minuteOpts+'</select><span class="timepicker-arrow" aria-hidden="true">▼</span></label></div>';
 }
 function parseTimeParts(period,hour,minute){
   if(!/^\d{1,2}$/.test(hour)||!/^\d{1,2}$/.test(minute)) return NaN;
@@ -1000,9 +1028,14 @@ function parseTimeParts(period,hour,minute){
   return (hr%12+(period==='pm'?12:0))*60+min;
 }
 function syncTimeFields(field,value){
+  var hourValue=String(hour12(value));
+  var minuteValue=String(value%60).padStart(2,'0');
   field.querySelector('[data-part="period"]').value=value===1440?'next':value<720?'am':'pm';
-  field.querySelector('[data-part="hour"]').value=String(hour12(value));
-  field.querySelector('[data-part="minute"]').value=String(value%60).padStart(2,'0');
+  field.querySelector('[data-part="hour"]').value=hourValue;
+  field.querySelector('[data-part="minute"]').value=minuteValue;
+  var hp=field.querySelector('[data-pick="hour"]'), mp=field.querySelector('[data-pick="minute"]');
+  if(hp) hp.value=hourValue;
+  if(mp) mp.value=minuteValue;
 }
 function timeSelectionError(row,key,value){
   if(!Number.isFinite(value)||value%5||value<START||value>LAST)
@@ -1049,13 +1082,12 @@ slotArea.addEventListener("click",function(e){
   if(at>-1) rows[i].days.splice(at,1); else rows[i].days.push(d);
   db.setAttribute("aria-pressed",String(at===-1));
 });
-slotArea.addEventListener("change",function(e){
-  var inp=e.target.closest('[data-part]'); if(!inp)return;
-  var field=inp.closest('.timefield'),slot=inp.closest('.slot'),i=+slot.dataset.i,key=field.dataset.k;
+function commitTimeField(field,slot){
+  var i=+slot.dataset.i,key=field.dataset.k;
   var value=parseTimeParts(field.querySelector('[data-part="period"]').value,
     field.querySelector('[data-part="hour"]').value.trim(),field.querySelector('[data-part="minute"]').value.trim());
   var error=timeSelectionError(rows[i],key,value),errorEl=slot.querySelector('.time-error');
-  if(error){syncTimeFields(field,rows[i][key]);errorEl.textContent=error;return;}
+  if(error){syncTimeFields(field,rows[i][key]);errorEl.textContent=error;return false;}
   rows[i][key]=value;
   syncTimeFields(field,value);
   errorEl.textContent='';
@@ -1063,6 +1095,29 @@ slotArea.addEventListener("change",function(e){
   slot.querySelectorAll('[data-dur]').forEach(function(b){
     b.setAttribute('aria-pressed',String(+b.dataset.dur===len));
   });
+  return true;
+}
+slotArea.addEventListener("input",function(e){
+  var inp=e.target.closest('input[data-part="hour"],input[data-part="minute"]');
+  if(!inp) return;
+  inp.value=inp.value.replace(/\D/g,'').slice(0,2);
+});
+slotArea.addEventListener("focusin",function(e){
+  var inp=e.target.closest('input[data-part="hour"],input[data-part="minute"]');
+  if(inp){try{inp.select();}catch(err){}}
+});
+slotArea.addEventListener("change",function(e){
+  var picker=e.target.closest('[data-pick]');
+  if(picker){
+    var field=picker.closest('.timefield'),slot=picker.closest('.slot');
+    var target=field.querySelector('[data-part="'+picker.dataset.pick+'"]');
+    if(target) target.value=picker.value;
+    commitTimeField(field,slot);
+    return;
+  }
+  var inp=e.target.closest('[data-part]'); if(!inp)return;
+  var field=inp.closest('.timefield'),slot=inp.closest('.slot');
+  commitTimeField(field,slot);
 });
 btnAddSlot.addEventListener("click",function(){
   if(rows.length>=MAXSLOTS)return;
@@ -1670,8 +1725,9 @@ function paintGrid(ctx,T,g){
 var modal=document.getElementById("modal"),
     mImg=document.getElementById("mImg"),
     mDl=document.getElementById("mDl"),
+    mOpen=document.getElementById("mOpen"),
     saveGuide=document.getElementById("saveGuide"),
-    lastBlob=null,lastDataUrl="",lastFileName="",
+    lastBlob=null,lastDataUrl="",lastFileName="",previewUrl="",
     ipadOrient=document.getElementById("ipadOrient"),
     bgRow=document.getElementById("bgRow"),
     exportMode="wall", ipadLandscape=false, exportBg="plain";
@@ -1685,24 +1741,51 @@ function saveEnv(){
     naver:/NAVER/i.test(ua)
   };
 }
-function updateSaveGuide(){
-  if(!saveGuide) return;
-  var env=saveEnv();
-  if(env.instagram||env.naver){
-    saveGuide.innerHTML='앱 내 브라우저에서는 파일 저장이 제한될 수 있어요. 저장 버튼이 바로 작동하지 않으면 <strong>위 이미지를 길게 눌러 사진에 저장</strong>하거나 Safari로 열어 주세요.';
-  }else if(env.ios){
-    saveGuide.innerHTML='저장 버튼을 누르면 다운로드됩니다. 사진 앱에 바로 넣으려면 <strong>위 이미지를 길게 눌러 사진에 저장</strong>해 주세요.';
-  }else{
-    saveGuide.textContent='저장 버튼을 누르면 PNG 이미지가 다운로드됩니다.';
+function clearPreviewUrl(){
+  if(previewUrl){
+    try{ URL.revokeObjectURL(previewUrl); }catch(e){}
+    previewUrl="";
   }
 }
 function releaseUrl(){
+  clearPreviewUrl();
   lastBlob=null;
   lastDataUrl="";
   lastFileName="";
-  /* data: URL을 사용하므로 Object URL 정리가 필요하지 않다. */
+  if(mOpen){mOpen.removeAttribute("href");mOpen.classList.add("hidden");}
 }
-function closeModal(){modal.classList.add("hidden");releaseUrl();}
+function preparePreviewUI(){
+  clearPreviewUrl();
+  lastBlob=null;
+  lastDataUrl="";
+  mImg.removeAttribute("src");
+  mImg.alt="시간표 이미지 만드는 중";
+  mDl.disabled=true;
+  mDl.textContent="이미지 준비 중…";
+  if(mOpen){mOpen.removeAttribute("href");mOpen.classList.add("hidden");}
+  if(saveGuide) saveGuide.textContent="이미지를 만들고 있어요. 잠시 후 이 화면에 바로 표시됩니다.";
+}
+function updateSaveGuide(){
+  if(!saveGuide) return;
+  var env=saveEnv();
+  if(env.ios){
+    mDl.textContent='사진에 저장하는 법';
+    saveGuide.innerHTML='<strong>위 이미지를 길게 누른 뒤 “사진에 저장”</strong>을 선택하면 사진 앱에 들어갑니다. 이미지가 작으면 “이미지 크게 보기”를 눌러 주세요.';
+    if(mOpen){mOpen.classList.remove("hidden");}
+  }else if(env.instagram||env.naver){
+    mDl.textContent='저장 안내';
+    saveGuide.innerHTML='앱 내 브라우저에서는 다운로드가 제한될 수 있어요. <strong>위 이미지를 길게 눌러 저장</strong>하거나 “이미지 크게 보기” 후 저장해 주세요.';
+    if(mOpen){mOpen.classList.remove("hidden");}
+  }else{
+    mDl.textContent='PNG 다운로드';
+    saveGuide.textContent='버튼을 누르면 PNG 파일로 다운로드됩니다.';
+    if(mOpen){mOpen.classList.remove("hidden");}
+  }
+  mDl.disabled=false;
+  /* 실제 미리보기가 준비된 뒤에만 다시 내보내기를 허용한다. */
+  setExportBusy(false);
+}
+function closeModal(){modal.classList.add("hidden");releaseUrl();setExportBusy(false);}
 document.getElementById("mClose").addEventListener("click",closeModal);
 modal.addEventListener("click",function(e){if(e.target===modal) closeModal();});
 document.addEventListener("keydown",function(e){
@@ -1710,41 +1793,98 @@ document.addEventListener("keydown",function(e){
   if(fbModal&&!fbModal.classList.contains("hidden")){ closeFeedback("dismiss"); return; }
   if(!modal.classList.contains("hidden")) closeModal();});
 
-function triggerDownload(dataUrl,name){
+function dataUrlToBlob(dataUrl){
+  var parts=dataUrl.split(',');
+  var meta=parts[0]||'';
+  var mime=(meta.match(/data:([^;]+)/)||[])[1]||'image/png';
+  var bin=atob(parts[1]||'');
+  var bytes=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new Blob([bytes],{type:mime});
+}
+function imageBlob(){
+  return lastBlob || (lastDataUrl ? dataUrlToBlob(lastDataUrl) : null);
+}
+function triggerBlobDownload(blob,name){
+  if(!blob) return false;
+  var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
-  a.href=dataUrl;
+  a.href=url;
   a.download=name;
   a.style.display="none";
   document.body.appendChild(a);
   a.click();
   a.remove();
+  setTimeout(function(){try{URL.revokeObjectURL(url);}catch(e){}},5000);
+  return true;
 }
+function setPreviewFromBlob(blob){
+  if(!blob) return false;
+  clearPreviewUrl();
+  lastBlob=blob;
+  previewUrl=URL.createObjectURL(blob);
+  mImg.alt="내보낸 시간표";
+  mImg.onload=function(){
+    mImg.onload=null;
+    mImg.onerror=null;
+    updateSaveGuide();
+  };
+  mImg.onerror=function(){
+    mImg.onload=null;
+    mImg.onerror=null;
+    /* Blob 미리보기가 실패하는 Safari 환경에서는 data URL로 한 번 더 시도 */
+    if(lastDataUrl){
+      mImg.src=lastDataUrl;
+      updateSaveGuide();
+    }else{
+      if(saveGuide) saveGuide.textContent="이미지 미리보기를 열지 못했습니다. 다시 한 번 이미지로 저장을 눌러 주세요.";
+      mDl.disabled=false;
+      mDl.textContent="다시 시도";
+    }
+  };
+  mImg.src=previewUrl;
+  if(mOpen) mOpen.href=previewUrl;
+  return true;
+}
+function finishCanvasPreview(cv,name,autoSave){
+  lastFileName=name;
+  /* fallback용 data URL. 실패해도 Blob 미리보기는 계속 시도한다. */
+  try{ lastDataUrl=cv.toDataURL("image/png"); }catch(e){ lastDataUrl=""; }
 
+  if(cv.toBlob){
+    try{
+      cv.toBlob(function(blob){
+        if(blob){
+          setPreviewFromBlob(blob);
+          /* 미리보기 생성 단계에서는 자동 다운로드를 절대 실행하지 않는다. */
+        }else if(lastDataUrl){
+          var fallback=dataUrlToBlob(lastDataUrl);
+          setPreviewFromBlob(fallback);
+        }else{
+          if(saveGuide) saveGuide.textContent="이미지를 만들지 못했습니다. 다시 시도해 주세요.";
+          mDl.disabled=false;mDl.textContent="다시 시도";setExportBusy(false);
+        }
+      },"image/png");
+      return;
+    }catch(e){}
+  }
+
+  if(lastDataUrl){
+    var fallbackBlob=dataUrlToBlob(lastDataUrl);
+    setPreviewFromBlob(fallbackBlob);
+    /* 미리보기 생성 단계에서는 자동 다운로드를 절대 실행하지 않는다. */
+  }else{
+    if(saveGuide) saveGuide.textContent="이미지를 만들지 못했습니다. 다시 시도해 주세요.";
+    mDl.disabled=false;mDl.textContent="다시 시도";setExportBusy(false);
+  }
+}
 function buildImage(autoSave){
-  releaseUrl();
+  preparePreviewUI();
   var cv = exportMode==="card" ? drawCard() : drawWallpaper(exportMode==="ipad",exportMode==="ipad"&&ipadLandscape);
   var base=(ttName.value||"timo").replace(/[\\/:*?"<>|]/g,"").trim()||"timo";
   var suffix = exportMode==="wall" ? "-wallpaper" : exportMode==="ipad" ? "-ipad" : "";
   var name=base+suffix+".png";
-
-  /*
-   * 저장 링크는 data: URL을 유지한다.
-   * Safari에서는 download가 동작하고, WKWebView 기반 인앱 브라우저에서는
-   * blob: URL보다 data: URL이 더 넓게 호환된다. 또한 toBlob() 완료를
-   * 기다릴 필요가 없어 저장 버튼을 바로 눌러도 된다.
-   */
-  lastDataUrl=cv.toDataURL("image/png");
-  lastFileName=name;
-  mImg.src=lastDataUrl;
-  mDl.download=name;
-  mDl.href=lastDataUrl;
-  updateSaveGuide();
-
-  /* Blob은 향후 공유/확장용으로만 보관한다. 저장 동작은 이에 의존하지 않는다. */
-  if(cv.toBlob){
-    cv.toBlob(function(blob){ if(blob) lastBlob=blob; },"image/png");
-  }
-  if(autoSave) triggerDownload(lastDataUrl,name);
+  finishCanvasPreview(cv,name,autoSave);
 }
 
 document.querySelectorAll(".js-mode").forEach(function(b){
@@ -1765,20 +1905,42 @@ document.querySelectorAll(".js-mode").forEach(function(b){
   });
 });
 function saveHint(){
-  toast("위 이미지를 길게 눌러 사진에 저장하세요");
+  var env=saveEnv();
+  if(env.ios){
+    toast("이미지를 길게 눌러 ‘사진에 저장’을 선택해 주세요");
+  }else{
+    toast("위 이미지를 길게 눌러 저장해 주세요");
+  }
+  mImg.classList.add("nudge");
+  setTimeout(function(){mImg.classList.remove("nudge");},1200);
   try{mImg.scrollIntoView({block:"center",behavior:"smooth"});}catch(err){}
 }
 mDl.addEventListener("click",function(e){
-  if(!lastDataUrl){e.preventDefault();toast("이미지를 다시 만들어 주세요");return;}
-  var canDownload="download" in document.createElement("a");
-  var env=saveEnv();
+  e.preventDefault();
+  if(mDl.disabled) return;
   var ctx=getAnalyticsContext();
+  var env=saveEnv();
+
+  if(!mImg.src){
+    buildImage(false);
+    return;
+  }
+
+  /* iOS Safari/WebView에서는 Web Share 파일 공유가 '이미지 저장'을 제공하지 않는
+     WebKit 문제가 있으므로, 실제 IMG를 길게 눌러 저장하는 안정적인 경로를 안내한다. */
+  if(env.ios || env.instagram || env.naver){
+    saveHint();
+    window.__timoTrack("image_save_click",withUTM(merge(ctx,{
+      method:env.ios?"ios_long_press":"inapp_long_press",time_to_export:timeToExport()
+    })));
+    return;
+  }
+
+  var ok=triggerBlobDownload(imageBlob(),lastFileName||"timo.png");
   window.__timoTrack("image_save_click",withUTM(merge(ctx,{
-    method:(env.instagram||env.naver)?"data_url_inapp":(canDownload?"data_url_download":"long_press"),
-    time_to_export:timeToExport()
+    method:ok?"blob_download":"long_press",time_to_export:timeToExport()
   })));
-  if(!canDownload){e.preventDefault();saveHint();return;}
-  /* href는 buildImage()에서 만든 data: URL 그대로 둔다. */
+  if(!ok){saveHint();return;}
   maybeFeedback(ctx);
 });
 
@@ -1861,30 +2023,64 @@ document.querySelectorAll(".js-ipad-o").forEach(function(b){
   });
 });
 
-document.getElementById("btnExport").addEventListener("click",function(){
+/* 이미지 내보내기: 터치 환경에서는 touchend 하나만 실제 동작을 수행하고,
+   뒤이어 Safari가 합성하는 click은 완전히 차단한다. 버튼 자체도 clone으로 교체해
+   이전에 붙었던 모든 이벤트 리스너를 제거한다. */
+var oldExportBtn=document.getElementById("btnExport");
+var exportBtn=oldExportBtn.cloneNode(true);
+exportBtn.type="button";
+oldExportBtn.parentNode.replaceChild(exportBtn,oldExportBtn);
+var lastExportActivateAt=0,lastExportTouchAt=0;
+
+function activateExport(){
+  var now=Date.now();
+  if(exportBusy || now-lastExportActivateAt<1800) return;
+  lastExportActivateAt=now;
   if(!courses.length){toast("강의를 먼저 담아 주세요");return;}
-  if(exportBusy) return;  /* 연타해도 export_image가 두 번 찍히지 않게 */
-  exportBusy=true;
-  var btn=this,label=btn.textContent;
-  btn.textContent="만드는 중…";
+  setExportBusy(true);
+  var ran=false;
   var go=function(){
+    if(ran) return;
+    ran=true;
     try{
-      buildImage(false);
       modal.classList.remove("hidden");
-      toast("이미지를 만들었습니다");
+      buildImage(false);
+      toast("이미지를 만들고 있습니다");
       var ctx=merge(getAnalyticsContext(),{time_to_export:timeToExport()});
       window.__timoTrack("export_image",withUTM(merge(ctx,{})));
       if(!LS.get("timo:first_complete")){
         LS.set("timo:first_complete","1");
         window.__timoTrack("first_timetable_complete",merge(ctx,{}));
       }
-    }catch(err){ toast("이미지를 만들지 못했습니다"); }
-    btn.textContent=label;
-    exportBusy=false;
+    }catch(err){
+      modal.classList.remove("hidden");
+      if(saveGuide) saveGuide.textContent="이미지를 만들지 못했습니다. 다시 시도해 주세요.";
+      mDl.disabled=false; mDl.textContent="다시 시도";
+      setExportBusy(false);
+      toast("이미지를 만들지 못했습니다");
+      try{console.error("Timo export error",err);}catch(e){}
+    }
   };
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(go).catch(go);
   else go();
-});
+}
+
+exportBtn.addEventListener("touchend",function(e){
+  if(e.cancelable) e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  lastExportTouchAt=Date.now();
+  activateExport();
+},{capture:true,passive:false});
+
+exportBtn.addEventListener("click",function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  /* touchend 뒤 Safari가 만드는 합성 click은 실행하지 않는다. */
+  if(Date.now()-lastExportTouchAt<1500) return;
+  activateExport();
+},true);
 
 function applyAppTheme(t){
   appTT.dataset.theme=t; app.dataset.theme=t;
