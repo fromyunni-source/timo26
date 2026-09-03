@@ -915,6 +915,7 @@ function renderGrid(el,list,opts){
   var k=0;
   list.forEach(function(c){
     c.slots.forEach(function(s){
+      // 블록은 입력한 실제 시작 시각 그대로 배치한다. (09:30이면 09:00 축에서 30분 아래)
       var r=s.start-top+2, span=s.end-s.start;
       var meta=[c.place,c.prof].filter(Boolean).join(" · ");
       var span2 = opts.detail
@@ -1304,10 +1305,14 @@ function wrapText(ctx,text,max,maxLines){
 function timeRange(list){
   var starts=[],ends=[];
   (list||courses).forEach(function(c){c.slots.forEach(function(s){starts.push(s.start);ends.push(s.end);});});
-  // Fit the exact earliest start and latest end across all weekdays.
-  var top=starts.length ? Math.min.apply(null,starts) : 9*60;
+
+  // 시간축 라벨만 가장 이른 수업이 속한 '정시'부터 시작한다.
+  // 예: 첫 수업 09:30 -> 왼쪽 시간축은 09:00부터 표시.
+  // 수업 블록의 시작 시각(s.start)은 절대 변경하지 않는다.
+  var earliest=starts.length ? Math.min.apply(null,starts) : 9*60;
+  var axisTop=Math.floor(earliest/60)*60;
   var bottom=ends.length ? Math.max.apply(null,ends) : 18*60;
-  return {top:top,bottom:bottom,n:bottom-top};
+  return {top:axisTop,bottom:bottom,n:bottom-axisTop};
 }
 function themeColors(){
   var t={bg:cssVar("--g-bg")||"#fff",ink:cssVar("--g-ink")||"#2A1F26",
@@ -1599,6 +1604,7 @@ function paintGrid(ctx,T,g){
   courses.forEach(function(co){
     co.slots.forEach(function(s){
       var x=g.x+g.timeW+g.colW*s.day+g.gap,
+          // 이미지 저장에서도 실제 수업 시작 시각을 그대로 사용한다.
           y=g.y+g.dayH+(s.start-g.top)*g.rowH+g.gap/2,
           w=g.colW-g.gap*2,
           h=Math.max(0,(s.end-s.start)*g.rowH-g.gap);
