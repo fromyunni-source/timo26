@@ -1247,11 +1247,39 @@ var ttName=document.getElementById("ttName");
 ttName.addEventListener("input",function(){
   document.getElementById("ttHeadName").textContent=ttName.value||"2026 - 2";});
 
-document.getElementById("btnClear").addEventListener("click",function(){
-  if(!courses.length){toast("담은 강의가 없습니다");return;}
-  if(!confirm("담은 강의를 모두 지울까요? 되돌릴 수 없습니다."))return;
-  courses=[];exitEdit();paint();toast("모두 지웠습니다");
-  window.__timoTrack("clear_all",{});});
+var btnClear=document.getElementById("btnClear"), clearArmT=null;
+btnClear.addEventListener("click",function(){
+  if(!courses.length){
+    toast("담은 강의가 없습니다");
+    return;
+  }
+
+  // 브라우저 기본 confirm()에 의존하지 않고 2회 클릭으로 안전하게 전체 삭제한다.
+  if(btnClear.dataset.armed!=="true"){
+    btnClear.dataset.armed="true";
+    btnClear.textContent="한 번 더 누르면 전체 삭제";
+    toast("한 번 더 누르면 담은 강의를 모두 지웁니다");
+    clearTimeout(clearArmT);
+    clearArmT=setTimeout(function(){
+      btnClear.dataset.armed="false";
+      btnClear.textContent="전체 지우기";
+    },4000);
+    return;
+  }
+
+  clearTimeout(clearArmT);
+  btnClear.dataset.armed="false";
+  btnClear.textContent="전체 지우기";
+  courses=[];
+  exitEdit();
+  paint();
+
+  // 빈 상태도 즉시 저장해 새로고침 뒤 이전 강의가 다시 복원되지 않게 한다.
+  if(Store.ok&&ready) Store.set(DRAFT,snapshot());
+
+  toast("모두 지웠습니다");
+  window.__timoTrack("clear_all",{});
+});
 
 function cssVar(name){
   return getComputedStyle(appTT).getPropertyValue(name).trim();
