@@ -705,7 +705,7 @@ button{font-family:inherit}
     <div class="modal-img"><img id="mImg" alt="내보낸 시간표"></div>
     <div class="modal-foot">
       <a class="btn btn-pink" id="mDl" download="">이미지 저장</a>
-      <p>이미지는 다운로드 폴더에 저장됩니다. 휴대폰에서 사진 앱에 저장하려면 위 이미지를 길게 눌러 주세요. 다운로드가 지원되지 않는 앱 내 브라우저에서도 길게 눌러 저장할 수 있습니다.</p>
+      <p id="saveGuide">이미지는 다운로드 폴더에 저장됩니다. 휴대폰에서 사진 앱에 저장하려면 위 이미지를 길게 눌러 주세요.</p>
     </div>
   </div>
 </div>
@@ -1669,14 +1669,38 @@ function paintGrid(ctx,T,g){
 
 var modal=document.getElementById("modal"),
     mImg=document.getElementById("mImg"),
-    mDl=document.getElementById("mDl"), lastBlob=null,
+    mDl=document.getElementById("mDl"),
+    saveGuide=document.getElementById("saveGuide"),
+    lastBlob=null,lastDataUrl="",lastFileName="",
     ipadOrient=document.getElementById("ipadOrient"),
     bgRow=document.getElementById("bgRow"),
     exportMode="wall", ipadLandscape=false, exportBg="plain";
 
+function saveEnv(){
+  var ua=navigator.userAgent||"";
+  var ios=/iP(?:hone|ad|od)/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  return {
+    ios:ios,
+    instagram:/Instagram/i.test(ua),
+    naver:/NAVER/i.test(ua)
+  };
+}
+function updateSaveGuide(){
+  if(!saveGuide) return;
+  var env=saveEnv();
+  if(env.instagram||env.naver){
+    saveGuide.innerHTML='앱 내 브라우저에서는 파일 저장이 제한될 수 있어요. 저장 버튼이 바로 작동하지 않으면 <strong>위 이미지를 길게 눌러 사진에 저장</strong>하거나 Safari로 열어 주세요.';
+  }else if(env.ios){
+    saveGuide.innerHTML='저장 버튼을 누르면 다운로드됩니다. 사진 앱에 바로 넣으려면 <strong>위 이미지를 길게 눌러 사진에 저장</strong>해 주세요.';
+  }else{
+    saveGuide.textContent='저장 버튼을 누르면 PNG 이미지가 다운로드됩니다.';
+  }
+}
 function releaseUrl(){
   lastBlob=null;
-  if(mDl.dataset.url){URL.revokeObjectURL(mDl.dataset.url);delete mDl.dataset.url;}
+  lastDataUrl="";
+  lastFileName="";
+  /* data: URL을 사용하므로 Object URL 정리가 필요하지 않다. */
 }
 function closeModal(){modal.classList.add("hidden");releaseUrl();}
 document.getElementById("mClose").addEventListener("click",closeModal);
@@ -1686,6 +1710,16 @@ document.addEventListener("keydown",function(e){
   if(fbModal&&!fbModal.classList.contains("hidden")){ closeFeedback("dismiss"); return; }
   if(!modal.classList.contains("hidden")) closeModal();});
 
+function triggerDownload(dataUrl,name){
+  var a=document.createElement("a");
+  a.href=dataUrl;
+  a.download=name;
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 function buildImage(autoSave){
   releaseUrl();
   var cv = exportMode==="card" ? drawCard() : drawWallpaper(exportMode==="ipad",exportMode==="ipad"&&ipadLandscape);
@@ -1693,21 +1727,24 @@ function buildImage(autoSave){
   var suffix = exportMode==="wall" ? "-wallpaper" : exportMode==="ipad" ? "-ipad" : "";
   var name=base+suffix+".png";
 
-  mImg.src=cv.toDataURL("image/png");
+  /*
+   * 저장 링크는 data: URL을 유지한다.
+   * Safari에서는 download가 동작하고, WKWebView 기반 인앱 브라우저에서는
+   * blob: URL보다 data: URL이 더 넓게 호환된다. 또한 toBlob() 완료를
+   * 기다릴 필요가 없어 저장 버튼을 바로 눌러도 된다.
+   */
+  lastDataUrl=cv.toDataURL("image/png");
+  lastFileName=name;
+  mImg.src=lastDataUrl;
   mDl.download=name;
-  mDl.href=mImg.src;
+  mDl.href=lastDataUrl;
+  updateSaveGuide();
 
-  cv.toBlob(function(blob){
-    if(!blob) return;
-    lastBlob=blob;
-    var url=URL.createObjectURL(blob);
-    mDl.href=url; mDl.dataset.url=url;
-    if(autoSave){
-      var a=document.createElement("a");
-      a.href=url; a.download=name;
-      document.body.appendChild(a); a.click(); a.remove();
-    }
-  },"image/png");
+  /* Blob은 향후 공유/확장용으로만 보관한다. 저장 동작은 이에 의존하지 않는다. */
+  if(cv.toBlob){
+    cv.toBlob(function(blob){ if(blob) lastBlob=blob; },"image/png");
+  }
+  if(autoSave) triggerDownload(lastDataUrl,name);
 }
 
 document.querySelectorAll(".js-mode").forEach(function(b){
@@ -1732,14 +1769,16 @@ function saveHint(){
   try{mImg.scrollIntoView({block:"center",behavior:"smooth"});}catch(err){}
 }
 mDl.addEventListener("click",function(e){
-  if(!lastBlob){e.preventDefault();toast("이미지를 준비하는 중입니다");return;}
+  if(!lastDataUrl){e.preventDefault();toast("이미지를 다시 만들어 주세요");return;}
   var canDownload="download" in document.createElement("a");
+  var env=saveEnv();
   var ctx=getAnalyticsContext();
   window.__timoTrack("image_save_click",withUTM(merge(ctx,{
-    method:canDownload?"direct_download":"long_press",time_to_export:timeToExport()
+    method:(env.instagram||env.naver)?"data_url_inapp":(canDownload?"data_url_download":"long_press"),
+    time_to_export:timeToExport()
   })));
   if(!canDownload){e.preventDefault();saveHint();return;}
-  // Follow the PNG download link directly; never invoke the share sheet.
+  /* href는 buildImage()에서 만든 data: URL 그대로 둔다. */
   maybeFeedback(ctx);
 });
 
